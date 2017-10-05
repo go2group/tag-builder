@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
+	<plugin-info>
+		<description>${project.description}</description>
+		<version>${project.version}</version>
+		<vendor name="${project.organization.name}" url="${project.organization.url}" />
+		<param name="plugin-icon">images/pluginIcon.png</param>
+		<param name="plugin-logo">images/pluginLogo.png</param>
+	</plugin-info>
+	
+	<!-- add our i18n resource -->
+	<resource type="i18n" name="i18n" location="tag-builder" />
+	<!-- add our web resources -->
+	<web-resource key="tag-builder-resources" name="tag-builder Web Resources">
+		<dependency>com.atlassian.auiplugin:ajs</dependency>
+		<resource type="download" name="tag-builder.css" location="/css/tag-builder.css" />
+		<resource type="download" name="tag-builder.js" location="/js/tag-builder.js" />
+		<resource type="download" name="images/" location="/images" />
+		<context>tag-builder</context>
+	</web-resource>
+	
+	<!-- import from the product container -->
+	<component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties" />
+	<component-import key="applicationLinkService" interface="com.atlassian.applinks.api.ApplicationLinkService" />
+	<component-import key="repositoryDefinitionManager" interface="com.atlassian.bamboo.repository.RepositoryDefinitionManager" />
+	
+	<web-item key="tab-builder-webitem" name="Tab Builder" section="chain.subMenu/chain" weight="100">
+		<description key="Tag Builder">Tab Builder</description>
+		<label key="build.tags" />
+		<link linkId="tagbuilder:${planKey}">/build/tagBuilder.action?planKey=${planKey}</link>
+	</web-item>
+	
+	<xwork key="tag-builder-action" name="Tag Builder">
+		<package name="tagBuilder" extends="buildView">
+			<action name="tagBuilder" class="com.go2group.bamboo.plugins.tagbuilder.xwork.TagBuilderAction">
+				<result name="input" type="freemarker">/templates/tag-builder-input.ftl</result>
+				<result name="success" type="freemarker">/templates/tag-builder-input.ftl</result>
+				<result name="error" type="freemarker">/error.ftl</result>
+			</action>
+			<action name="buildTag" class="com.go2group.bamboo.plugins.tagbuilder.xwork.TagBuilderAction" method="buildTag">
+				<result name="success" type="redirect">/browse/${planKey}-${buildNumber}</result>
+				<result name="error" type="freemarker">/error.ftl</result>
+			</action>
+		</package>
+	</xwork>
+	
+	<component-import key="pluginAccessor" interface="com.atlassian.plugin.PluginAccessor" />
+	<component-import key="pluginController" interface="com.atlassian.plugin.PluginController" />
+	<component-import key="txTemplate" interface="com.atlassian.sal.api.transaction.TransactionTemplate" />
+	<component-import key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer" />
+	<component-import key="pluginSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory" />
+	<component-import key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider" />
+	<component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager" />
+	<component-import key="i18nResolver" interface="com.atlassian.sal.api.message.I18nResolver" />
+</atlassian-plugin>
